@@ -1,0 +1,48 @@
+﻿---- Unrepeatable Read
+---- T1: Khách hàng muốn tìm tất cả các món ăn thuộc một loại món ăn cho trước ở một chi nhánh cho trước
+---- T2: Đối tác cập nhật lại cách gọi mới cho loại món ăn ở một chi nhánh
+---T1
+CREATE OR ALTER
+PROC USP_X_LOAIMA
+@tenloai NVARCHAR(50),
+@macn VARCHAR(10)
+AS
+	BEGIN TRAN
+	SET TRANSACTION ISOLATION LEVEL REPEATABLE READ --- FIX: CHUYỂN MỨC CÔ LẬP LÊN REPEATABLE READ
+	IF NOT EXISTS ( SELECT *
+					FROM MONAN
+					WHERE LOAIMONAN = @tenloai AND CHINHANH = @macn)
+	BEGIN 
+		PRINT N'KHÔNG CÓ TÌM KIẾM PHÙ HỢP'
+		ROLLBACK TRAN
+		RETURN
+	END
+	WAITFOR DELAY '00:00:10' 
+	SELECT *
+	FROM MONAN
+	WHERE LOAIMONAN = @tenloai AND CHINHANH = @macn
+	COMMIT TRAN
+GO
+
+---T2
+CREATE OR ALTER
+PROC USP_UP_LOAIMA
+@tencu NVARCHAR(50),
+@tenmoi NVARCHAR(50),
+@macn VARCHAR(10)
+AS
+	BEGIN TRAN
+	SET TRANSACTION ISOLATION LEVEL READ COMMITTED
+	IF NOT EXISTS ( SELECT *
+					FROM MONAN
+					WHERE LOAIMONAN = @tencu AND CHINHANH = @macn)
+	BEGIN 
+		PRINT N'KHÔNG CÓ TÌM KIẾM PHÙ HỢP'
+		ROLLBACK TRAN
+		RETURN
+	END 
+	UPDATE MONAN
+	SET LOAIMONAN = @tenmoi
+	WHERE LOAIMONAN = @tencu AND CHINHANH = @macn
+	COMMIT TRAN
+GO

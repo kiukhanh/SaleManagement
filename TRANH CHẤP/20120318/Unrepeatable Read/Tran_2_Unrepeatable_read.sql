@@ -1,0 +1,1 @@
+﻿EXEC USP_UP_LOAIMA N'Cơm', N'Các loại cơm', 'CN0002'

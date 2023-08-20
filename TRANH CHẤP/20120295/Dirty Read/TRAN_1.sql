@@ -1,0 +1,1 @@
+EXEC sp_update_GIA 'MA0001',1

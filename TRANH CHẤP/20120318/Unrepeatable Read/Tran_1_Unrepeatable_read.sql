@@ -1,0 +1,1 @@
+﻿EXEC USP_X_LOAIMA N'Cơm', 'CN0002'
